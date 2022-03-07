@@ -1,4 +1,6 @@
+# Environmental Variables
 .env
 
+# Google Credentials and User Token
 creds.json
 token.json
