@@ -48,17 +48,17 @@ def main():
 
     try:
 
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Call the Sheets API
+        sheet = service.spreadsheets()
+
         # Taking user input
         sheet_name = input("Qual o nome da sua página no Orc'ronologia? (É o nome que aparece na barra em baixo):")
         description = input("Descrição: ")
 
         # Sets the range
         RANGE = f'{sheet_name}!A1:H50'
-
-        service = build('sheets', 'v4', credentials=creds)
-
-        # Call the Sheets API
-        sheet = service.spreadsheets()
 
         # Checking which range is empty
         result = service.spreadsheets().values().get(
