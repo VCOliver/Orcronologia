@@ -22,6 +22,8 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # The spreadsheet ID
 SPREADSHEET_ID = getenv('SPREADSHEET_ID')
 
+DEFAULT_TIME = '12:00:00 AM'
+
 
 def main():
 
@@ -64,10 +66,14 @@ def main():
         result = service.spreadsheets().values().get(
             spreadsheetId=SPREADSHEET_ID, range=RANGE).execute()
         rows = result.get('values', [])
+
+        # Checks which sheet row has not been used yet
         for i in range(50):
             if rows[i][0] == '':
                 row = i + 1
                 break
+        # Formating week 
+        week = f'=CONCATENATE("Semana ", IFERROR(ROUNDDOWN(DATEDIF(Geral!C$5, A{row}, "D") / 7 + 1), 0))'
 
         # Starts the StopWatch and saves the time
         start = StartTime()
@@ -79,10 +85,10 @@ def main():
         # Formatting all the information
         row_data = [
             date, 
-            f'=CONCATENATE("Semana ", IFERROR(ROUNDDOWN(DATEDIF(Geral!C$5, A{row}, "D") / 7 + 1), 0))', 
+            week, 
             start_time, 
             end_time, 
-            '12:00:00 AM', 
+            DEFAULT_TIME, 
             description
         ]
 
@@ -95,7 +101,10 @@ def main():
     except HttpError as err:
         if err.resp.status in [400, 404]:
             print("\nERRO: Por favor confira se o nome da página foi escrita corretamente\n")
+
+            # Tries to access sheet again
             main()
+
         else:
             print(err)
 
