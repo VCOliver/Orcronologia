@@ -27,12 +27,9 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 # The spreadsheet ID
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
-@eel.expose
-def api():
+def connecting_to_api():
 
-    # Sets the range
-    RANGE = os.getenv('RANGE')
-
+    global creds
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -51,6 +48,11 @@ def api():
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
+@eel.expose
+def AccessGoogleSheet():
+
+    global name
+    RANGE = f'{name}!A1:H20'
 
     try:
         service = build('sheets', 'v4', credentials=creds)
@@ -71,6 +73,9 @@ def api():
         else:
             print(err)
 
+# Declaring global time variables
+hour = min = sec = 0
+
 @eel.expose
 def stop():
     global stopwatch
@@ -78,14 +83,15 @@ def stop():
 
 @eel.expose
 def StopWatch():
-    hour = min = sec = 0
 
     global stopwatch
     stopwatch = True
 
+    global hour, min, sec
+
     while stopwatch == True:
         time_elapsed = f"{hour:02d}:{min:02d}:{sec:02d}"
-        eel.addText(time_elapsed)
+        eel.showTime(time_elapsed)
         eel.sleep(1)
         if(59 > sec >= 0):
             sec = sec + 1
@@ -97,8 +103,15 @@ def StopWatch():
             min = 0
             hour = hour + 1
 
+@eel.expose
+def get_form_input(input):
+    global name, description
+    name = input[0]
+    description = input[1]
 
 if __name__ == "__main__":
 
+    connecting_to_api()
+
     eel.init(PATH)
-    eel.start("index.html", size=(500,350),port=8080) # This states that all code below this line will be read
+    eel.start("index.html", size=(500,350),port=8080)
